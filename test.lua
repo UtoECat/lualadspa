@@ -1,12 +1,11 @@
-local input  = newport("input", true)
-local output = newport("output", false)
+-- Noise generator :)
+local output = newport("output", false, true)
 local ffi = require "ffi"
 
-function process(cnt)
+function process(sz)
 	-- realtime thread here!
-	local inb = ffi.cast("float*", input:buffer(cnt))
-	local oub = ffi.cast("float*", output:buffer(cnt))
-	for i = 0, cnt-1 do
-		oub[i] = inb[i] * 10
+	local buff = ffi.cast("float*", output:buffer(sz))
+	for i = 0, sz-1 do
+		buff[i] = math.random(-100, 100) / 100
 	end
 end

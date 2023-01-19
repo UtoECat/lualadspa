@@ -2,6 +2,16 @@
 LuaJACK allows you write *simple* jack clients on lua.   
 *Simple* there means that they will only handle realtime audio data process function and can create some ports at stage of initialization...
 
+# luajack usage
+```
+Copyright (C) UtoECat 2023. All rights reserved.
+GNU GPL License. No any warrianty!
+usage:
+	./luajack [code.lua] 			- runs file
+	./luajack -h 				- shows help
+	./luajack -v 				- shows version
+	./luajack [code.lua] [server name]	- runs file for jack server with specified name
+```
 # API
 
 `port = newport(name :string, isInput :boolean, isTerminal :boolean)`    

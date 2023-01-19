@@ -9,7 +9,7 @@ Creates new JACK port.
 - **port** is returned magical user-data object :p
 - **name** is name of JACK port. Must be unique for one client...
 - **isInput** specifies is this port will be used as input for audio data, or as ouput of audio data.
-- **isTerminal** specifies is port not depends of other ports data.
+- **isTerminal** specifies is port not depends of other ports data.   
 **warning** : if port was not opened, this function throws an error      
 **warning** : you can't create more ports when JACK client is activated (in process function :) )
 

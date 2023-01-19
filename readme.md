@@ -24,7 +24,7 @@ Returns true if port is connected to any other port.
 `lud = port:buffer(size :integer)`   
 Returns light user data, pointed to buffer of port.
 - **size** is size of all buffers, passed as first argument in `process` function!     
-**IMPORTANT NOTE!** Buffer location may be **CHANGED** on next JACK tick, so you **MUST** recall it agan, and again in `process` function!
+**IMPORTANT NOTE!** Buffer location may be **CHANGED** on next JACK tick, so you **MUST** recall it agan, and again in `process` function, and **NOT** keep this lightuserdata anywhere else!
 
 `rate = getrate()`    
 Returns JACK Server samplerate (integer).   

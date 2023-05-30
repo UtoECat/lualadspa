@@ -20,10 +20,16 @@ luau.o : ./src/luau.cpp
 
 liblualadspa.so : luau.o $(SOURCES)
 	$(CXX) $^ -o $@ -shared $(CXXFLAGS)
-	cp liblualadspa.so ~/.ladspa/
+	cp liblualadspa.so ~/.ladspa/ || true
 
 lualadspa : liblualadspa.so ./src/cmdline.cpp
 	$(CXX) ./src/cmdline.cpp -o $@ $(CXXFLAGS) -ldl
 
 clean:
 	rm -f *.o lualadspa liblualadspa.so
+
+install: liblualadspa.so
+	mkdir -p ~/.ladspa
+	cp liblualadspa.so ~/.ladspa/
+	mkdir -p ~/.lualadspa
+	cp -r ./plugins ~/.lualadspa

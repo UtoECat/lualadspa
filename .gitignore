@@ -1,4 +1,5 @@
 /lualadspa
 /liblualadspa.so
+/lladspa.log
 *.o
 *.d

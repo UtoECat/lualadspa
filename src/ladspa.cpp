@@ -285,6 +285,7 @@ static void run(void* state, unsigned long samplecount) {
 	if (top != lua_gettop(L)) logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 
+// holy right :D
 LADSPA_Descriptor makeDescriptor(PluginProperties* prop) {
 	return (LADSPA_Descriptor) {
 		123, prop->label, default_properties, prop->name, prop->maker,
@@ -298,14 +299,13 @@ LADSPA_Descriptor makeDescriptor(PluginProperties* prop) {
 #include <exception>
 
 static const char* search_pathes[] = {
-	"/home/utoecat/Github/protected_github/lualadspa/plugins",
+	"/usr/share/lualadspa/",
 	"~/.lualadspa/",
 	nullptr
 };
 
 static volatile bool init_done = false;
 
-#include <locale.h>
 class LUALADSPA {
 	/*
 	 * Array of loaded plugins.
@@ -314,7 +314,6 @@ class LUALADSPA {
 	public:
 	std::vector<LADSPA_Descriptor> plugins;
 	LUALADSPA() {
-		setlocale(LC_ALL, "C");
 		FILE* f = fopen("./lladspa.log", "w");
 		if (!f) f = stderr;
 		outlog = f;
@@ -350,11 +349,8 @@ class LUALADSPA {
 } _G;
 
 extern "C" const LADSPA_Descriptor* ladspa_descriptor(unsigned long Index) {
-	logInfo("Plugins are indexied!");
 	if (!init_done) *((int*)0) = 35; // catch ugly plugin manager in FATAL
 	if (Index >= _G.plugins.size())
 		return NULL;
 	return _G.plugins.data() + Index;
 }
-
-extern "C" const int plug1 = 0;

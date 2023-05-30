@@ -1,1 +1,3 @@
 /luajack
+*.o
+*.d

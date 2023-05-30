@@ -1,6 +1,8 @@
 /*
  * LuaLadspa - write your own LADSPA plugins on lua :)
- * CLI interface for managing existing plugins/debug and develop your ones.
+ * CLI(no :D) interface for managing existing plugins/debug and 
+ * develop your ones.
+ * (Actually just enumerates and checks plugins for consistency)
  * Copyright (C) 2023 UtoECat
 
  * This program is free software: you can redistribute it and/or modify
@@ -65,6 +67,7 @@ void logInfo(const char* message, ...) {
 	return;
 }
 
+typedef FILE* (*logSetter)(FILE* f);
 
 int main() {
 
@@ -78,10 +81,16 @@ int main() {
 	LADSPA_Descriptor_Function ladspa_descriptor = 
 		reinterpret_cast<LADSPA_Descriptor_Function>(ptr);
 
-	if (!ladspa_descriptor) {
+	ptr = dlsym(handle, "setlogdesc");
+	logSetter setLog = reinterpret_cast<logSetter>(ptr);
+
+	if (!ladspa_descriptor || !setLog) {
 		logError("Invalid lualadspa.so : %s!", dlerror());
 		return -1;
 	}
+
+	FILE* old = setLog(stderr);
+	if (old != stderr) fclose(old);
 
 	int ind = 0;
 	const LADSPA_Descriptor* D;
@@ -116,10 +125,21 @@ int main() {
 				}
 			}
 			D->run(inst, 128);
+			D->run(inst, 128);
+			D->run(inst, 128);
+			logInfo("Reactivation, and run 4 times again...");
 			D->deactivate(inst);
+			D->activate(inst);
+			D->run(inst, 128);
+			D->run(inst, 128);
+			D->run(inst, 128);
+			D->run(inst, 128);
+			D->deactivate(inst);
+			logInfo("Deactivation...");
 			D->cleanup(inst);	
 		} else logError("Can't instantiate plugin %s!", D->Name);
 		ind++;
+		logInfo("----------------------------------------------");
 	}
 	if (ladspa_descriptor(0) == nullptr) 
 		logError("No lualadspa plugin founded!");	

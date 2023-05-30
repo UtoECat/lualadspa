@@ -32,11 +32,18 @@ static void ProxyGlobals(lua_State* L) {
 	lua_replace(L, LUA_GLOBALSINDEX);
 }
 
+static void luaopen_extra2(lua_State* L);
+
 LuaState::LuaState() {
 	L = lua_newstate(limitedAlloc, this);
 	if (!L) throw "NOMEM";
 	luaL_openlibs(L);
+	luaopen_extra2(L);
 	lua_setthreaddata(L, this);
+}
+
+double LuaState::memoryUsageFactor() {
+	return (double)allocdata.allocated/(double)allocdata.maxlimit;
 }
 
 /*
@@ -219,5 +226,41 @@ static const luaL_Reg internal_funcs[] = {
 void OpenInternals(lua_State* L) {
 	lua_pushvalue(L, LUA_REGISTRYINDEX);
 	luaL_register(L, nullptr, internal_funcs);
+	lua_pop(L, 1);
+}
+
+// hehe
+extern FILE* outlog;
+
+// extra logger for plugins
+static int luaB_print2(lua_State* L) {
+	int n = lua_gettop(L);
+	try {
+		std::string buffer;
+		for (int i = 1; i <= n; i++) {
+			size_t l;
+			const char* s = luaL_tolstring(L, i, &l);
+			if (i > 1)
+				buffer += "\t";
+			buffer.append(s, l);
+			lua_pop(L, 1);
+		}
+		fprintf(outlog, "[Print]: ");
+		fwrite(buffer.c_str(), 1, buffer.size(), outlog);
+		fprintf(outlog, "\n");
+	} catch(...) {
+		fprintf(outlog, "[Print]: NOMEM\n");
+	}
+	return 0;
+}
+
+static const luaL_Reg extra_funcs[] = {
+	{"print", luaB_print2}, // override print function
+	{nullptr, nullptr}
+};
+
+static void luaopen_extra2(lua_State* L) {
+	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	luaL_register(L, nullptr, extra_funcs);
 	lua_pop(L, 1);
 }

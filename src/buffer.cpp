@@ -117,6 +117,12 @@ static int luaB_resize(lua_State* LL) {
 	return 1;
 }
 
+static int luaP_getusage(lua_State* LL) {
+	LuaState& L = *reinterpret_cast<LuaState*>(lua_getthreaddata(LL));
+	lua_pushnumber(L, L.memoryUsageFactor());
+	return 1;
+}
+
 static int luaP_getrate(lua_State* L) {
 	lua_getfield(L, LUA_REGISTRYINDEX, "samplerate");
 	return 1;
@@ -127,6 +133,7 @@ static const luaL_Reg ladspa_funcs[] = {
 	{"newBuffer", luaB_new},
 	{"resizeBuffer", luaB_resize},
 	{"getSampleRate", luaP_getrate},
+	{"getMemoryUsage", luaP_getusage},
 	{nullptr, nullptr}
 };
 

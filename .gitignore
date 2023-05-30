@@ -1,3 +1,4 @@
-/luajack
+/lualadspa
+/liblualadspa.so
 *.o
 *.d

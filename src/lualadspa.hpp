@@ -80,6 +80,7 @@ class LuaState {
 	}
 
 	void* limalloc(void* p, size_t old, size_t nsz);
+	double memoryUsageFactor();
 
 	void limitMemoryKB(size_t KBytes);
 	bool loadBytecode(const char* buff, size_t size, const char* name);	

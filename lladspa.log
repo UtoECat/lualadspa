@@ -1,17 +1,18 @@
 [Info ]: length : 833
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
-[Info ]: length : 1005
+[Print]: Plugin initialization is DONE sucessfully!
+[Info ]: length : 1078
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
+[Print]: Plugin initialization is DONE sucessfully!
 [Info ]: length : 1245
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
+[Print]: Plugin initialization is DONE sucessfully!
 [Info ]: length : 1024
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
+[Print]: Plugin initialization is DONE sucessfully!
 [Error]: Can't process directory ~/.lualadspa/ : filesystem error: directory iterator cannot open directory: No such file or directory [~/.lualadspa/]
 [Info ]: All directories was passed successfully!
-[Info ]: Plugins are indexied!
-[Info ]: Plugins are indexied!
-[Error]: Error while calling activate() : [string "Error Generator"]:47: frick

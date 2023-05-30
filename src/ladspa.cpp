@@ -67,6 +67,12 @@ void logInfo(const char* message, ...) {
 	return;
 }
 
+extern "C" FILE* setlogdesc(FILE* f) {
+	FILE* old = outlog;
+	outlog = f;
+	return old;
+}
+
 /*
  * Reads a whole file into memory (std::string)
  */
@@ -223,22 +229,26 @@ static void docall(lua_State* L, const char* field) {
 	}
 	if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
 		logError("Error while calling %s() : %s", field, lua_tostring(L, -1));
+		lua_pop(L, 1);
 	}
-	lua_pop(L, 1);
 }
 
 static void activate(void* state) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
 	LuaState& L = handle->L;
+	auto top = lua_gettop(L);
 	docall(L, "activate");
 	handle->activated = true;
+	if (top != lua_gettop(L))logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 
 static void deactivate(void* state) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
 	LuaState& L = handle->L;
+	auto top = lua_gettop(L);
 	docall(L, "deactivate");
 	handle->activated = false;
+	if (top != lua_gettop(L))logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 
 static void run(void* state, unsigned long samplecount) {
@@ -260,6 +270,7 @@ static void run(void* state, unsigned long samplecount) {
 		B->size = handle->P->portDescriptors[i-1] & LADSPA_PORT_CONTROL ? 1 : samplecount;
 		lua_pop(L, 1);
 	}
+	lua_pop(L, 1);
 
 	if (lua_getfield(L, LUA_GLOBALSINDEX, "run") != LUA_TFUNCTION) {
 		lua_pop(L, 1);
@@ -269,8 +280,8 @@ static void run(void* state, unsigned long samplecount) {
 	lua_pushnumber(L, samplecount);
 	if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
 		logError("Error while calling run() : %s", lua_tostring(L, -1));
+		lua_pop(L, 1);
 	}
-	lua_pop(L, 1);
 	if (top != lua_gettop(L)) logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 

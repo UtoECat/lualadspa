@@ -29,7 +29,6 @@ ports = {
 	}
 }
 
-
 function run(sz)
 	local out  = buffers[2]
 	local in1  = buffers[1]
@@ -44,9 +43,11 @@ function run(sz)
 end
 
 function activate()
+	print "Hi!"
 	error "frick"
 end
 
 function deactivate()
+	print "Bye!"
 	error "nobody needs you"
 end

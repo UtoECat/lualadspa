@@ -6,6 +6,8 @@ Lualadspa is a very powerful ladspa plugin, that gives you ability to write a lo
 
 Your plugins are simple lua files, that contain all info about plugin and all plugin's methods. Version check and plugin information validation are already implemented.
 
+![plugin information](doc/img1.png)
+
 **WARNING! This project is still in early development, aka not very usable in production!** But it would be wonderful, if you will contribute in this project in some way. TODO list may be found in `TODO.md file`.
 
 ## Luau, available libs, API and so on...

@@ -40,7 +40,7 @@ Recieves size argumrnt - size of your auduio buffer, aka number of elements in i
 
 `ladspa.resizeBuffer(buffer, newsize)` changes size of given buffer.
 
-Indecies are numbers in range `1..BUFFER\_SIZE`. You should remember size of your buffer, size of external buffers is given as fist argument to `process` function. 
+Indecies are numbers in range `1..BUFFER\_SIZE`. You should remember size of your buffer, size of external buffers is given as fist argument to `run()` function. 
 **HINT:** Last index is equal to the size of the buffer
 
 `AudioBuffer[ind]` *aka __index metamethod* used to **GET VALUE** from audio buffer at specified **INDEX**. Out of bounds access is **NOT DETECTED IN RELEASE VERSION, AND WILL CAUSE UNDEFINED BEHAVIOUR**, be careful.

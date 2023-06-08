@@ -110,6 +110,7 @@ static int luaB_resize(lua_State* LL) {
 	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*> (
 			luaL_checkudata(LL, 1, BUFFNAME));
 	LuaState& L = *reinterpret_cast<LuaState*>(lua_getthreaddata(LL));
+	if (!B->external) luaL_error(L, "Resizing external buffers is not allowed!");
 	if (n) {
 		B->buffer = reinterpret_cast<sample_type*>( L.limalloc(B->buffer,
 			B->size * sizeof(sample_type),

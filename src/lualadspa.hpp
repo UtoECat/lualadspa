@@ -155,3 +155,14 @@ LadspaBuffer* NewBuffer(lua_State* L, bool external);
 void OpenInternals(lua_State* L);
 void OpenLuaLadspa(lua_State* L);
 
+// modules/database api
+extern "C" void refreshDatabase();
+
+// already precompiled modules
+const std::string& loadModule(const char* id);
+const char* modulesNameIterator(long int idx);
+
+// where to search for new modules?
+const char* searchPathesIterator(long int idx);
+
+

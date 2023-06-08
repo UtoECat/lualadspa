@@ -296,13 +296,47 @@ LADSPA_Descriptor makeDescriptor(PluginProperties* prop) {
 	};
 }
 
+// OS specific stuff is hidden behind the scenes
+
 #include <exception>
 
-static const char* search_pathes[] = {
-	"/usr/share/lualadspa/",
-	"~/.lualadspa/",
-	nullptr
-};
+static fsys::path empty_path;
+static fsys::path search_pathes[2] = {};
+
+#ifdef linux
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+
+static const char* getHome() {
+	const char* home = nullptr;
+#ifdef _WIN32
+	home = getenv("USERPROFILE");
+#else
+	home = getenv("HOME");
+#endif
+	if (!home) { // last try
+		#ifdef linux
+		fprintf(stderr, "NO $HOME!\n");
+		home = getpwuid(getuid())->pw_dir;
+		#endif
+		// no way to workaround!
+	}
+	fprintf(stderr, "$HOME = %s!\n", home);
+	return home ? home : "";
+}
+
+#include <stdlib.h>
+static void initPathes() {
+	#ifdef _WIN32
+	search_pathes[0] = "C:/lualadspa/";
+	search_pathes[1] = (fsys::path(getHome()) / "AppData/Local/lualadspa/");
+	#else
+	search_pathes[0] = "/usr/share/lualadspa";
+	search_pathes[1] = (fsys::path(getHome()) / ".lualadspa");
+	#endif
+}
 
 static volatile bool init_done = false;
 
@@ -313,23 +347,31 @@ class LUALADSPA {
 	 */
 	public:
 	std::vector<LADSPA_Descriptor> plugins;
+	private:
+	void tryLoadPlugins(const fsys::path& path) {
+		for (auto const& entry : fsys::directory_iterator(path)) {
+			PluginProperties* prop = LoadPlugin(entry.path().c_str());
+			if (prop) {
+				plugins.push_back(makeDescriptor(prop));
+			}
+		}
+	}
+	public:
 	LUALADSPA() {
+		initPathes();
 		FILE* f = fopen("./lladspa.log", "w");
 		if (!f) f = stderr;
 		outlog = f;
-		const char** p = search_pathes;
-		while (*p) {
+
+		// enum pathes
+		for (int i = 0; i < 2; i++) {
+			auto& p = search_pathes[i];
 			try {
-				for (auto const& entry : fsys::directory_iterator(*p)) {
-					PluginProperties* prop = LoadPlugin(entry.path().c_str());
-					if (prop) {
-						plugins.push_back(makeDescriptor(prop));
-					}
-				}
+				logInfo("Process %s...", p.c_str());
+				tryLoadPlugins(p);
 			} catch (std::exception& e) {
-				logError("Can't process directory %s : %s", *p, e.what());
+				logError("Can't process directory %s : %s", p.c_str(), e.what());
 			};
-			p++;
 		}
 		logInfo("All directories was passed successfully!");
 		init_done = true;

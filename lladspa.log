@@ -1,8 +1,11 @@
-[Info ]: length : 833
+[Info ]: Process /usr/share/lualadspa...
+[Error]: Can't process directory /usr/share/lualadspa : filesystem error: directory iterator cannot open directory: No such file or directory [/usr/share/lualadspa]
+[Info ]: Process /home/utoecat/.lualadspa...
+[Info ]: length : 1024
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
-[Info ]: length : 1078
+[Info ]: length : 833
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
@@ -10,9 +13,8 @@
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
-[Info ]: length : 1024
+[Info ]: length : 1078
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
-[Error]: Can't process directory ~/.lualadspa/ : filesystem error: directory iterator cannot open directory: No such file or directory [~/.lualadspa/]
 [Info ]: All directories was passed successfully!

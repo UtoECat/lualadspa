@@ -8,7 +8,7 @@ BUILD_CLI = 1
 all : lualadspa
 
 SHARED_HEADERS = ./src/lualadspa.hpp ./src/ladspa.h ./src/luau.hpp
-SOURCES = ./src/buffer.cpp ./src/instance.cpp ./src/ladspa.cpp
+SOURCES = ./src/buffer.cpp ./src/instance.cpp ./src/ladspa.cpp #./src/modules.cpp
 CXXFLAGS = $(CCFLAGS) -std=c++17 -O1 -g -fPIC
 
 $(SOURCES) : $(SHARED_HEADERS)
@@ -32,4 +32,4 @@ install: liblualadspa.so
 	mkdir -p ~/.ladspa
 	cp liblualadspa.so ~/.ladspa/
 	mkdir -p ~/.lualadspa
-	cp -r ./plugins ~/.lualadspa
+	cp ./plugins/* ~/.lualadspa

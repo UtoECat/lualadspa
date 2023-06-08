@@ -20,6 +20,16 @@
 #include "luau.hpp"
 #pragma once
 
+#define DEEP_DEBUG 0
+
+#ifdef __GNUC__
+#define LIKELY(x) __builtin_expect(x, 1)
+#define UNLIKELY(x) __builtin_expect(x, 0) 
+#else
+#define LIKELY(x) x
+#define UNLIKELY(x) x
+#endif
+
 static_assert(sizeof(LADSPA_Data) <= sizeof(lua_Number));
 
 #define IS_INPUT(x)   LADSPA_IS_PORT_INPUT(x)

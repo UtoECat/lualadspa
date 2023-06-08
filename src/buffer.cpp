@@ -18,36 +18,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "lualadspa.hpp"
-
-#ifdef __GNUC__
-#define LIKELY(x) __builtin_expect(x, 1)
-#define UNLIKELY(x) __builtin_expect(x, 0) 
-#else
-#define LIKELY(x) x
-#define UNLIKELY(x) x
-#endif
-
 #define BUFFNAME "_bufferMT"
 
+static inline void* getudata(lua_State* L) {
+	#if DEEP_DEBUG
+	return luaL_checkudata(L, 1, BUFFNAME)
+	#else
+	return lua_touserdata(L, 1); // no typechecks
+	#endif
+}
+
 static int luaB_index(lua_State* L) {
-	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*>(
-		luaL_checkudata(L, 1, BUFFNAME));
+	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*>(getudata(L));
 	int idx = luaL_checkinteger(L, 2) - 1;
 	sample_type *ptr = B->buffer + idx;
+
+	#if DEEP_DEBUG
 	if (UNLIKELY(idx < 0 || idx >= B->size)) luaL_error(L, "out of bounds");
 	else if (UNLIKELY(!B->buffer)) luaL_error(L, "buffer is empity");
+	#endif
+
 	lua_pushnumber(L, *ptr);
 	return 1;
 }
 
 static int luaB_newindex(lua_State* L) {
-	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*>(
-		luaL_checkudata(L, 1, BUFFNAME));
+	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*>(getudata(L));
 	int idx = luaL_checkinteger(L, 2) - 1;
 	sample_type value = lua_tonumber(L, 3);
 	sample_type *ptr = B->buffer + idx;
+
+	#if DEEP_DEBUG
 	if (UNLIKELY(idx < 0 || idx >= B->size)) luaL_error(L, "out of bounds");
 	else if (UNLIKELY(!B->buffer)) luaL_error(L, "buffer is empity");
+	#endif
+
 	*ptr = value;
 	return 0;
 }
@@ -60,7 +65,7 @@ static int luaP_version(lua_State* L) {
 
 static void buffdtor(lua_State* LL, void* p) {
 	LadspaBuffer* B = reinterpret_cast<LadspaBuffer*>(p);
-	if (B->external) return; // do not destroy external buffers!
+	if (B->external) return; // do not try to destroy external buffers!
 	LuaState& L = *reinterpret_cast<LuaState*>(lua_getthreaddata(LL));
 	L.limalloc(B->buffer, B->size * sizeof(sample_type), 0);
 }

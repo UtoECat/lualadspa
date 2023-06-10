@@ -12,7 +12,7 @@
 
 static const char* skipwhite(const char* q) {
 	const char	*p = q;
-	while (isspace(*p)) p++;
+	while (*p == ' ' || *p == '\t') p++;
 	return p;
 }
 
@@ -79,7 +79,6 @@ static double vim_strtod(const char *str, char **end) {
 		} else if (*p == 0)
 			goto done;
 	
-		// shitty precise magic?
 		if (d == 2.2250738585072011 && e == -308) {
 			d = 0.0; a = p;
 			goto done;

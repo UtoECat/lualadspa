@@ -1436,7 +1436,8 @@ LUAU_FASTMATH_END
 #endif
 #define LUAI_MAXNUM2STR 48
 LUAI_FUNC char* luai_num2str(char* buf, double n);
-#define luai_str2num(s, p) strtod((s), (p))
+#include "strtod.h"
+#define luai_str2num(s, p) vim_strtod((s), (p))
 const char* lua_ident = "$Lua: Lua 5.1.4 Copyright (C) 1994-2008 Lua.org, PUC-Rio $\n"
  "$Authors: R. Ierusalimschy, L. H. de Figueiredo & W. Celes $\n"
  "$URL: www.lua.org $\n";
@@ -22115,7 +22116,7 @@ static ConstantNumberParseResult parseDouble(double& result, const char* data)
  if (data[0] == '0' && (data[1] == 'x' || data[1] == 'X') && data[2])
  return parseInteger(result, data, 16);
  char* end = nullptr;
- double value = strtod(data, &end);
+ double value = luai_str2num(data, &end);
  result = value;
  return *end == 0 ? ConstantNumberParseResult::Ok : ConstantNumberParseResult::Malformed;
 }

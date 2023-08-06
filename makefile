@@ -25,6 +25,8 @@ liblualadspa.so : luau.o $(SOURCES)
 lualadspa : liblualadspa.so ./src/cmdline.cpp
 	$(CXX) ./src/cmdline.cpp -o $@ $(CXXFLAGS) -ldl
 
+./src/instance.cpp: ./src/internal.h
+
 clean:
 	rm -f *.o lualadspa liblualadspa.so
 

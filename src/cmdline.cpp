@@ -69,6 +69,15 @@ void logInfo(const char* message, ...) {
 
 typedef FILE* (*logSetter)(FILE* f);
 
+float getDefault(LADSPA_PortRangeHint desc) {
+	float min = desc.LowerBound;
+	float max = desc.UpperBound;
+	int h = desc.HintDescriptor & LADSPA_HINT_DEFAULT_MASK;
+	if (h & LADSPA_HINT_DEFAULT_MAXIMUM) return max;
+	if (h & LADSPA_HINT_DEFAULT_MINIMUM) return min;
+	if (h & LADSPA_HINT_DEFAULT_MIDDLE) return (max - min)/2.0;
+}
+
 int main() {
 
 	void* handle = dlopen("liblualadspa.so", RTLD_NOW);
@@ -122,6 +131,9 @@ int main() {
 							(h & LADSPA_HINT_LOGARITHMIC)?'+':'-',
 							(h & LADSPA_HINT_SAMPLE_RATE)?'+':'-'
 						);
+					if (h & LADSPA_HINT_DEFAULT_MASK)
+						logInfo("Port %i default = %f!", i, 
+							getDefault(D->PortRangeHints[i]));
 				}
 			}
 			D->run(inst, 128);

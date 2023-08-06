@@ -9,7 +9,11 @@
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
-[Info ]: length : 1245
+[Info ]: length : 1405
+[Info ]: Compiles sucessfully
+[Info ]: Runs successfully
+[Print]: Plugin initialization is DONE sucessfully!
+[Info ]: length : 1271
 [Info ]: Compiles sucessfully
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
@@ -18,3 +22,14 @@
 [Info ]: Runs successfully
 [Print]: Plugin initialization is DONE sucessfully!
 [Info ]: All directories was passed successfully!
+[Print]: Hi!
+[Error]: Error while calling activate() : [string "Error Generator"]:47: frick
+[Error]: Error while calling run() : [string "Error Generator"]:37: oh no
+[Print]: Bye!
+[Error]: Error while calling deactivate() : [string "Error Generator"]:52: nobody needs you
+[Print]: Hi!
+[Error]: Error while calling activate() : [string "Error Generator"]:47: frick
+[Error]: Error while calling run() : [string "Error Generator"]:37: oh no
+[Print]: Bye!
+[Error]: Error while calling deactivate() : [string "Error Generator"]:52: nobody needs you
+[Info ]: Plugins are unloaded!

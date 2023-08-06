@@ -1,4 +1,3 @@
--- Simple Example mixer plugin for Lualadspa plugin developers.
 -- You can share, use, copy, paste this file and edit it for your needs.
 --
 -- This AND ONLY THIS file is released UNLICENSED into PUBLIC DOMAIN,
@@ -9,8 +8,8 @@
 
 
 info = {
-	name = "Simple Distorsion Example", 
-	label = "plugdist",
+	name = "Simple Bad HighFreq Filter Example (Buffer and middle value based)", 
+	label = "plugbadfilter",
 	maker = "LuaLadspa Community",
 	copyright = "unlicensed",
 	realtime = true,
@@ -33,26 +32,37 @@ ports = {
 		name = "Output Channel 2",
 	}, {
 		type = "ic",
-		name = "Amplifier",
+		name = "Strength",
 		min  = 1,
-		max  = 30,
-		default = 1
-	}, {
-		type = "ic",
-		name = "Cutoff",
+		max  = 50
 	}
 } 
 
-local function sign(v)
-	if v > 0 then return 1
-	elseif v < 0 then return -1
-	else return 0 end
-end
+local tmp1 = {0, 0, 0, 0, pos = 0}
+local tmp2 = {0, 0, 0, 0, pos = 0}
 
-local function power(v, amp, lim) 
-		local s = sign(v)
-		v = v * amp
-		return math.min(math.abs(v), lim) * s
+local function filter(input, tmp, tmplen)
+	local pos = tmp.pos
+	local val = 0
+	
+	-- add value to the buffer
+	tmp[pos] = input
+
+	-- sum everything
+	for i = 1, tmplen do
+		val = val + tmp[i]
+	end
+
+	-- get middle value
+	val = val / tmplen
+
+	-- increase position
+	if pos + 1 >= tmplen then
+		tmp.pos = 1
+	else
+		tmp.pos = pos + 1
+	end
+	return val
 end
 
 function run(sz)
@@ -62,13 +72,24 @@ function run(sz)
 	local in2 = buffers[2]
 
 	-- here is a way to get control values :D
-	local amp = buffers[5][1]
-	local cut = buffers[6][1]
+	local len = math.floor(buffers[5][1])
+
+	-- filter buffer setup
+	if len <= 0 then
+		len = 1
+	end
+
+	if len > #tmp1 then
+		for i = #tmp1, len do
+			tmp1[i] = 0
+			tmp2[i] = 0
+		end
+	end
 
 	-- work
 	for i = 1, sz do
-		ou1[i] = power(in1[i], 1+amp, cut)
-		ou2[i] = power(in2[i], 1+amp, cut)
+		ou1[i] = filter(in1[i], tmp1, len)
+		ou2[i] = filter(in2[i], tmp2, len)
 	end
 end
 

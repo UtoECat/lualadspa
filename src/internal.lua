@@ -66,6 +66,42 @@ local HINT_FREQ    = 0x8
 local HINT_INT     = 0x20
 local HINT_LOG     = 0x10
 
+-- default
+local default_hints = {
+	min    = 0x40,
+	low    = 0x80,
+	middle = 0xC0,
+	high   = 0x100,
+	max    = 0x140
+}
+
+local default_hints_list = {
+	0x40, 0x80, 0xC0,
+	0x100, 0x140
+}
+
+local function lerp(v, min, max)
+	v = v - min
+	local k = max - min
+	if k ~= 0 then
+		return v / k
+	end
+	return 1
+end
+
+local function procdefault(def, min, max)
+	if type(def) == "string" then
+		assert(default_hints[def], "invalid default enum!")
+		return default_hints[def]
+	elseif type(def) == "number" then
+		local v = lerp(v, min, max)
+		v = math.floor(v*4)+1
+		assert(v > 0 and v <= 5, "defaulkt value is out of range "..tostring(v))
+		return default_hints_list[v]
+	end
+	error('bad port default value type. Expected enum string or number!')
+end
+
 -- ports processing
 local isOut, isControl, min, max, hint, name
 
@@ -150,6 +186,9 @@ local function doPort(p, i)
 	assert(type(v) == "string", "hint must be a string")
 	v:gsub("%w*", porthint)
 
+	if p.default then
+		hint = bit32.bor(hint, procdefault(p.default, min or 0, max or 1)) -- hint
+	end
 
 	local desc = bit32.bor(
 		isOut and TYPE_OUTPUT or TYPE_INPUT,
@@ -193,6 +232,7 @@ setport = nil
 defaults = nil
 porttype = nil
 porthint = nil
+procdefault = nil
 doPort = nil
 print("Plugin initialization is DONE sucessfully!")
 _REG._collect() -- collect all possible garbage

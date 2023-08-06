@@ -42,7 +42,8 @@ const std::string strformat(const char * const fmt, ...) {
 	return res;
 }
 
-FILE* outlog = stderr; 
+FILE* outlog = stdout; 
+static volatile bool nooverlog = false;
 
 void logError(const char* message, ...) {
 	va_list args;
@@ -70,6 +71,7 @@ void logInfo(const char* message, ...) {
 extern "C" FILE* setlogdesc(FILE* f) {
 	FILE* old = outlog;
 	outlog = f;
+	nooverlog = true;
 	return old;
 }
 
@@ -343,7 +345,7 @@ static volatile bool init_done = false;
 class LUALADSPA {
 	/*
 	 * Array of loaded plugins.
-	 * (Plugin properties is stored in ImplementationData!)
+	 * (Plugin properties are stored in ImplementationData!)
 	 */
 	public:
 	std::vector<LADSPA_Descriptor> plugins;
@@ -359,9 +361,11 @@ class LUALADSPA {
 	public:
 	LUALADSPA() {
 		initPathes();
-		FILE* f = fopen("./lladspa.log", "w");
-		if (!f) f = stderr;
-		outlog = f;
+		if (!nooverlog) {
+			FILE* f = fopen("./lladspa.log", "w");
+			if (!f) f = stderr;
+			outlog = f;
+		}
 
 		// enum pathes
 		for (int i = 0; i < 2; i++) {
@@ -388,11 +392,21 @@ class LUALADSPA {
 		if (outlog != stderr) fclose(outlog);
 		init_done = false;
 	}
-} _G;
+};
+
+class LUALADSPA* _G = nullptr;
 
 extern "C" const LADSPA_Descriptor* ladspa_descriptor(unsigned long Index) {
-	if (!init_done) *((int*)0) = 35; // catch ugly plugin manager in FATAL
-	if (Index >= _G.plugins.size())
+	if (!_G) _G = new LUALADSPA;
+	if (Index >= _G->plugins.size())
 		return NULL;
-	return _G.plugins.data() + Index;
+	return _G->plugins.data() + Index;
 }
+
+static class DEST {
+	public:
+	~DEST() {
+		init_done = false;
+		delete _G;
+	}
+} __DEST; // static destructor

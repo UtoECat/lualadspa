@@ -84,7 +84,7 @@ local function lerp(v, min, max)
 	v = v - min
 	local k = max - min
 	if k ~= 0 then
-		return v / k
+		return 1
 	end
 	return 1
 end
@@ -96,7 +96,7 @@ local function procdefault(def, min, max)
 	elseif type(def) == "number" then
 		local v = lerp(v, min, max)
 		v = math.floor(v*4)+1
-		assert(v > 0 and v <= 5, "defaulkt value is out of range "..tostring(v))
+		assert(v > 0 and v <= 5, "default value is out of range "..tostring(v))
 		return default_hints_list[v]
 	end
 	error('bad port default value type. Expected enum string or number!')

@@ -50,7 +50,7 @@ typedef LADSPA_PortDescriptor port_type;
 using port_hints = LADSPA_PortRangeHint;
 
 constexpr int version_major = 0;
-constexpr int version_minor = 1;
+constexpr int version_minor = 2;
 
 #include <cstdio>
 #include <cstdarg>

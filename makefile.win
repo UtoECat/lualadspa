@@ -30,7 +30,7 @@ lualadspa.exe : liblualadspa.dll ./src/cmdline.cpp
 clean:
 	rm -f *.o lualadspa.exe liblualadspa.dll
 
-install: liblualadspa.so
+install: liblualadspa.dll
 	mkdir -p $(APPDATA)/LADSPA
 	cp liblualadspa.dll $(APPDATA)/LADSPA
 	mkdir -p $(LOCALAPPDATA)/lualadspa

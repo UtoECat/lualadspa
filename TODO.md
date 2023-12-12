@@ -1,8 +1,12 @@
 # TODO
 - More testing
+- Windows porting and testing
 - Add default value hint
-- Check buffer library for mistakes/errors
+- MAYBE move to more flexible plugin API... hmmm..
+- Add MASTER plugin to control whole ladspa plugins stack and view logs
+- ~~Check buffer library for mistakes/errors~~
+- Dynamic selection of Buffer methods - debug and release one
 - Better logging system
 - Add plugins lookup cache (and maybe bytecode cache :o)
-- Make a pullrequest/enchacement to Luau about custom strtod() implementation
-- Fix buildsystem a LOT
+- ~~Make a pullrequest/enchacement to Luau about custom strtod() implementation~~ they will not do that yet
+- Fix buildsystem a LOT (not really important...)

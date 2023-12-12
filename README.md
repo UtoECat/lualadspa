@@ -8,6 +8,8 @@ Your plugins are simple lua files, that contain all info about plugin and all pl
 
 ![plugin information](doc/img1.png)
 
+Every plugin is runned as separate and independent virtual machine, btw.
+
 **WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project in some way (by writing plugins, or using it's plugins, writing documentations as examples). Also TODO list may be found in `TODO.md file`.
 
 ## Luau, available libs, API and so on...
@@ -32,7 +34,7 @@ For debugging purposes.
 
 **AudioBuffer** is a userdata object, that contatins audio data.
 It may have size, or be a reference to a single value.
-AudioBuffer can be **internal** (created in lua) or **external** (passed in by HOST). HOST buffers are not consumes many memory, while internal buffers do, and do very much :) 
+AudioBuffer can be **internal** (created in lua) or **external** (passed in by HOST). HOST buffers do not consume any memory, while internal buffers do, and do very much :) 
 Internal buffers can be resized by lua, external **CAN NOT**. Host decides when to resize external buffer and do all this stuff. You should not care about this.
 
 `ladspa.newBuffer(size)` creates new audio buffer with specified size.
@@ -41,7 +43,7 @@ Recieves size argumrnt - size of your auduio buffer, aka number of elements in i
 `ladspa.resizeBuffer(buffer, newsize)` changes size of given buffer.
 
 Indecies are numbers in range `1..BUFFER\_SIZE`. You should remember size of your buffer, size of external buffers is given as fist argument to `run()` function. 
-**HINT:** Last index is equal to the size of the buffer
+**HINT:** Last index is the size of the buffer :)
 
 `AudioBuffer[ind]` *aka __index metamethod* used to **GET VALUE** from audio buffer at specified **INDEX**. Out of bounds access is **NOT DETECTED IN RELEASE VERSION, AND WILL CAUSE UNDEFINED BEHAVIOUR**, be careful.
 
@@ -78,7 +80,7 @@ Master state has another one purpose : it runs internal bytecode, that does
 all this dirty "getting/caching values from lua state to C", validates plugin info and so on. It was really much easier to implement in lua, than in C/C++.
 
 Also, this gives us ability to limit maximal memory usage per plugin state.
-I am still not sure what this limit should be. Now it's 128 Mb.
+I am still not sure what this limit should be. Now it's 32 Mb.
 
 `_G.ladspa` table contains some useful functions for your plugins - version info, creating/resizing CUSTOM AUDIO BUFFERS (*needs testing*), getting current samplerate and so on.
 They are actively uses registry table internally.
@@ -86,4 +88,9 @@ They are actively uses registry table internally.
 **AND REALLY IMPORTANT NOTE :** lualadspa uses **NOT VANILLA LUA, BUT LUAU -** customized lua distributon for SAFE embedding + with much better VM/Compiler, while keeping a whole codebase on C/C++ => still being as portable, as C/C++ (this is where luajit sucks :D).
 
 While safe embedding is still just cool addition, faster interpreter is really important, to minimize audio flows/gaps and other shit.
-I know that luajit WILL be faster, but at the same time... There may be some dragons. 
+I know that luajit WILL be faster, but at the same time... There may be some dragons.
+
+# Known Issues
+- Plugin hosts don't like when plugin's index is changing at runtime... I don't know why, but some hosts may even crash because of this.
+- SOMETIMES (expirienced only on Carla) host may crash by itself, and i dunno why.
+- Sometimes plugin hosts likes very much to call `\_\_free()` on shared library and unload all aloded and compiled plugins - this means taht anyy sort of plugin usage become disaster on perfomace, and this may not be fixed, but i will try to minimise load time as muck, as i could later.

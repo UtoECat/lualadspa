@@ -1,5 +1,7 @@
 /lualadspa
 /liblualadspa.so
+/liblualadspa.dll
+/lualadspa.exe
 /lladspa.log
 *.o
 *.d

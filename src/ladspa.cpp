@@ -172,6 +172,7 @@ PluginHandle* makeHandle(PlugPropShared props, unsigned long rate) {
 	PluginHandle* H = handle.get();
 	H->P = props;
 	H->samplerate = rate;
+	H->shutdown = false;
 	LuaState& L = handle.get()->L;
 	InitInstanceState(L);
 	std::string str = props->bytecode;
@@ -180,6 +181,7 @@ PluginHandle* makeHandle(PlugPropShared props, unsigned long rate) {
 		// can't continue
 		luaerror:
 		str = lua_tostring(L, -1);
+		H->shutdown = true; // unlikely, but... makes sense...
 		logError("Can't instanciate plugin %s! Error : %s!", props->name,
 			str.c_str());
 		return nullptr;
@@ -206,6 +208,7 @@ static void cleaninstance(void* state) {
 
 static void connectport(void* state, unsigned long idx, sample_type* data) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
+	if (handle->shutdown) return; // oh no
 	LuaState& L = handle->L;
 	if (lua_getfield(L, LUA_REGISTRYINDEX, "buffers") != LUA_TTABLE) {
 		logError("Connect : no buffers in the registry");
@@ -224,31 +227,38 @@ static void connectport(void* state, unsigned long idx, sample_type* data) {
 	lua_pop(L, 2);
 }
 
-static void docall(lua_State* L, const char* field) {
+static void docall(lua_State* L, const char* field, PluginHandle* handle) {
 	if (lua_getfield(L, LUA_GLOBALSINDEX, field) != LUA_TFUNCTION) {
 		lua_pop(L, 1);
 		return;
 	}
-	if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+	int err = lua_pcall(L, 0, 0, 0);
+	if (err != LUA_OK) {
 		logError("Error while calling %s() : %s", field, lua_tostring(L, -1));
+		if (err == LUA_ERRMEM || err == LUA_ERRERR) {
+			// difficult situation...
+			handle->shutdown = true; 
+		}
 		lua_pop(L, 1);
 	}
 }
 
 static void activate(void* state) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
+	if (handle->shutdown) return; // oh no
 	LuaState& L = handle->L;
 	auto top = lua_gettop(L);
-	docall(L, "activate");
+	docall(L, "activate", handle);
 	handle->activated = true;
 	if (top != lua_gettop(L))logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 
 static void deactivate(void* state) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
+	if (handle->shutdown) return; // oh no
 	LuaState& L = handle->L;
 	auto top = lua_gettop(L);
-	docall(L, "deactivate");
+	docall(L, "deactivate", handle);
 	handle->activated = false;
 	if (top != lua_gettop(L))logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
@@ -257,18 +267,22 @@ static void run(void* state, unsigned long samplecount) {
 	auto handle = reinterpret_cast<PluginHandle*>(state);
 	LuaState& L = handle->L;
 	if (!handle->activated) logError("Plugin was not activated!");
+	if (handle->shutdown) return; // oh no
 
 	auto top = lua_gettop(L);
 	// for each external buffer
 	if (lua_getfield(L, LUA_REGISTRYINDEX, "buffers") != LUA_TTABLE) {
 		logError("Run : no buffers in the registry"); lua_pop(L, 1); return;
 	}
+
+	// TODO : this whole loop is not free... hmmm...
 	int cnt = lua_objlen(L, -1);
 	for (int i = 1; i <= cnt; i++) {
 		lua_rawgeti(L, -1, i);
 		LadspaBuffer* B = reinterpret_cast<LadspaBuffer*> (
 			luaL_checkudata(L, -1, BUFFNAME) // crashes, assumes it readonly
 		);
+		// control port will still have size 1
 		B->size = handle->P->portDescriptors[i-1] & LADSPA_PORT_CONTROL ? 1 : samplecount;
 		lua_pop(L, 1);
 	}
@@ -280,8 +294,14 @@ static void run(void* state, unsigned long samplecount) {
 		return;
 	}
 	lua_pushnumber(L, samplecount);
-	if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+
+	int err = lua_pcall(L, 1, 0, 0);
+	if (err != LUA_OK) {
 		logError("Error while calling run() : %s", lua_tostring(L, -1));
+		if (err == LUA_ERRMEM || err == LUA_ERRERR) {
+			// difficult situation...
+			handle->shutdown = true; 
+		}
 		lua_pop(L, 1);
 	}
 	if (top != lua_gettop(L)) logError("bad top! (was %i, now %i)", top, lua_gettop(L));

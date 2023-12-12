@@ -141,6 +141,7 @@ struct PluginHandle {
 	int activated; // debug
 	unsigned int samplerate;
 	unsigned long samplescnt;
+	bool shutdown; // is plugin TERMINATED
 	LuaState L; // plugin instance
 };
 

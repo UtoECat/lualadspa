@@ -40,7 +40,7 @@ class FileIO {
 	// opening/closing
 	void close() {if (f) fclose(f); f = nullptr;}
 	bool open(fsys::path path, const char* mode) {
-		f = fopen(path.c_str(), mode);
+		f = fopen(path.string().c_str(), mode);
 		return isOpened();
 	}
 

@@ -374,7 +374,7 @@ class LUALADSPA {
 	private:
 	void tryLoadPlugins(const fsys::path& path) {
 		for (auto const& entry : fsys::directory_iterator(path)) {
-			auto prop = LoadPlugin(entry.path().c_str());
+			auto prop = LoadPlugin(entry.path().string().c_str());
 			if (prop) {
 				plugins.push_back(makeDescriptor(prop));
 			}

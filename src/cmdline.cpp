@@ -81,6 +81,7 @@ float getDefault(LADSPA_PortRangeHint desc) {
 int main() {
 
 	void* handle = dlopen("liblualadspa.so", RTLD_NOW);
+	if (!handle) handle = dlopen("./liblualadspa.so", RTLD_NOW);
 	if (!handle) {
 		logError("Can't open lualadspa.so : %s!", dlerror());
 		return -1;

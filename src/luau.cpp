@@ -8891,7 +8891,7 @@ int luaopen_os(lua_State* L)
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <Windows.h>
+#include <windows.h> // FIX
 #endif
 #ifdef __APPLE__
 #include <mach/mach.h>

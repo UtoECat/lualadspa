@@ -20,7 +20,6 @@ luau.o : ./src/luau.cpp
 
 liblualadspa.so : luau.o $(SOURCES)
 	$(CXX) $^ -o $@ -shared $(CXXFLAGS)
-	cp liblualadspa.so ~/.ladspa/ || true
 
 lualadspa : liblualadspa.so ./src/cmdline.cpp
 	$(CXX) ./src/cmdline.cpp -o $@ $(CXXFLAGS) -ldl

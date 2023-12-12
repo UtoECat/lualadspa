@@ -20,7 +20,6 @@
  */
 
 #include "ladspa.h"
-#include <dlfcn.h> // load it dynamicly
 
 //extern "C" const LADSPA_Descriptor* ladspa_descriptor(unsigned long Index);
 
@@ -78,24 +77,42 @@ float getDefault(LADSPA_PortRangeHint desc) {
 	if (h & LADSPA_HINT_DEFAULT_MIDDLE) return (max - min)/2.0;
 }
 
+
+#if defined(_WIN32) || defined(WIN32) 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define OPENLIB(libname) LoadLibraryA(libname)
+#define SYMLIB(lib, fn) reinterpret_cast<void*>(GetProcAddress((lib), (fn)))
+#define CLOSELIB(lib) FreeLibrary(lib)
+#define LIBERR() "error handling not implemented"
+#define LIBNAME "liblualadspa.dll"
+#elif defined(__linux__) | defined(__unix__)
+#include <dlfcn.h> // load it dynamicly
+#define OPENLIB(libname) dlopen((libname), RTLD_LAZY)
+#define SYMLIB(lib, fn) dlsym((lib), (fn))
+#define CLOSELIB(lib) dlclose(lib)
+#define LIBERR() dlerror()
+#define LIBNAME "liblualadspa.so"
+#endif
+
 int main() {
 
-	void* handle = dlopen("liblualadspa.so", RTLD_NOW);
-	if (!handle) handle = dlopen("./liblualadspa.so", RTLD_NOW);
+	auto handle = OPENLIB(LIBNAME);
+	if (!handle) handle = OPENLIB("./" LIBNAME);
 	if (!handle) {
-		logError("Can't open lualadspa.so : %s!", dlerror());
+		logError("Can't open" LIBNAME " : %s!", LIBERR());
 		return -1;
 	}
 
-	void* ptr = dlsym(handle, "ladspa_descriptor");
+	void* ptr = SYMLIB(handle, "ladspa_descriptor");
 	LADSPA_Descriptor_Function ladspa_descriptor = 
 		reinterpret_cast<LADSPA_Descriptor_Function>(ptr);
 
-	ptr = dlsym(handle, "setlogdesc");
+	ptr = SYMLIB(handle, "setlogdesc");
 	logSetter setLog = reinterpret_cast<logSetter>(ptr);
 
 	if (!ladspa_descriptor || !setLog) {
-		logError("Invalid lualadspa.so : %s!", dlerror());
+		logError("Invalid lualadspa.so : %s!", LIBERR());
 		return -1;
 	}
 
@@ -156,6 +173,6 @@ int main() {
 	}
 	if (ladspa_descriptor(0) == nullptr) 
 		logError("No lualadspa plugin founded!");	
-	dlclose(handle);
+	CLOSELIB(handle);
 	return 0;
 }

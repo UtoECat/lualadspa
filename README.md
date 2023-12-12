@@ -93,4 +93,4 @@ I know that luajit WILL be faster, but at the same time... There may be some dra
 # Known Issues
 - Plugin hosts don't like when plugin's index is changing at runtime... I don't know why, but some hosts may even crash because of this.
 - SOMETIMES (expirienced only on Carla) host may crash by itself, and i dunno why.
-- Sometimes plugin hosts likes very much to call `\_\_free()` on shared library and unload all aloded and compiled plugins - this means taht anyy sort of plugin usage become disaster on perfomace, and this may not be fixed, but i will try to minimise load time as muck, as i could later.
+- Sometimes plugin hosts likes very much to call `__free()` on shared library and unload all loded and compiled plugins - this means that any sort of plugin usage become disaster on perfomace, and this may not be fixed, but i will try to minimise load time as much, as i could later.

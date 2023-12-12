@@ -346,6 +346,8 @@ class LUALADSPA {
 	/*
 	 * Array of loaded plugins.
 	 * (Plugin properties are stored in ImplementationData!)
+	 * In's important to keep them in Shared pointer, so ImplementationData is actually a Shared Pointer on PluginProperties :)
+	 * std::shared_ptr is thread safe, so there should be npo any problems, hopefully.
 	 */
 	public:
 	std::vector<LADSPA_Descriptor> plugins;
@@ -363,7 +365,8 @@ class LUALADSPA {
 		initPathes();
 		if (!nooverlog) {
 			FILE* f = fopen("./lladspa.log", "w");
-			if (!f) f = stderr;
+			if (!f) f = stderr; // IMPORTANT TO FALLBACK!
+													// (since there may be more than 1 lualadspa user)
 			outlog = f;
 		}
 

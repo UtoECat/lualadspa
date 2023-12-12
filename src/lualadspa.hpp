@@ -20,7 +20,12 @@
 #include "luau.hpp"
 #pragma once
 
+/*
+ * YOU MAY WANT TO USE THIS ONE IN CASE SOME PLUGIN CRESHES! :)
+ */
+#ifndef DEEP_DEBUG
 #define DEEP_DEBUG 0
+#endif
 
 #ifdef __GNUC__
 #define LIKELY(x) __builtin_expect(x, 1)
@@ -45,12 +50,12 @@ static_assert(sizeof(LADSPA_Data) <= sizeof(lua_Number));
 using sample_type = LADSPA_Data;
 constexpr int default_properties = LADSPA_PROPERTY_REALTIME;
 
-	// this is more meaningful names for this types
+// this is more meaningful names for this types
 typedef LADSPA_PortDescriptor port_type;
 using port_hints = LADSPA_PortRangeHint;
 
 constexpr int version_major = 0;
-constexpr int version_minor = 2;
+constexpr int version_minor = 3; 
 
 #include <cstdio>
 #include <cstdarg>
@@ -150,6 +155,7 @@ bool InitMasterValues(LuaState& L, PluginProperties* props);
  * Loads ladspa library + applies sandbox
  */
 void InitInstanceState(LuaState& L);
+
 /*
  * finally adds buffers to communicate
  */
@@ -176,5 +182,3 @@ const char* modulesNameIterator(long int idx);
 
 // where to search for new modules?
 const char* searchPathesIterator(long int idx);
-
-

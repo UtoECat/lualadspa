@@ -130,7 +130,7 @@ bool loadFileContent(const char* finm, std::string& buff) {
 
 #include <vector>
 
-PluginProperties* LoadPlugin(const char* name) {
+std::shared_ptr<PluginProperties> LoadPlugin(const char* name) {
 	std::string code;
 	if (!loadFileContent(name, code)) {
 		return nullptr; // error
@@ -140,7 +140,7 @@ PluginProperties* LoadPlugin(const char* name) {
 	code.clear();
 
 	// we need state here
-	auto p = std::make_unique<PluginProperties>();
+	auto p = std::make_shared<PluginProperties>();
 	LuaState& L = p.get()->master;
 	InitMasterState(L);
 
@@ -160,14 +160,14 @@ PluginProperties* LoadPlugin(const char* name) {
 	lua_pop(L, 1);
 	// and parse it + do some internal stuff to optimize master state
 	if (!InitMasterValues(L, p.get())) goto luaerror;
-	return p.release(); // well done!
+	return p; // well done!
 }
 
 /*
  * LADSPA_Descriptor here
  */
 
-PluginHandle* makeHandle(PluginProperties* props, unsigned long rate) {
+PluginHandle* makeHandle(PlugPropShared props, unsigned long rate) {
 	auto handle = std::make_unique<PluginHandle>();
 	PluginHandle* H = handle.get();
 	H->P = props;
@@ -192,8 +192,8 @@ PluginHandle* makeHandle(PluginProperties* props, unsigned long rate) {
 }
 
 static void* newinstance(const LADSPA_Descriptor* D, unsigned long rate) {
-	PluginProperties* P = reinterpret_cast<PluginProperties*> (
-		D->ImplementationData);
+	auto P = *(reinterpret_cast<PlugPropShared*> (
+		D->ImplementationData));
 	return makeHandle(P, rate);
 }
 
@@ -287,13 +287,13 @@ static void run(void* state, unsigned long samplecount) {
 	if (top != lua_gettop(L)) logError("bad top! (was %i, now %i)", top, lua_gettop(L));
 }
 
-// holy right :D
-LADSPA_Descriptor makeDescriptor(PluginProperties* prop) {
+// holy right :D (you must release std::shared_ptr here!)
+LADSPA_Descriptor makeDescriptor(PlugPropShared prop) {
 	return (LADSPA_Descriptor) {
 		123, prop->label, default_properties, prop->name, prop->maker,
 		prop->copyright, prop->portCount, prop->portDescriptors.get(),
 		prop->portNames.get(), prop->portRangeHints.get(),
-		(void*)prop, newinstance, connectport, activate, run, 
+		(void*)new PlugPropShared(prop), newinstance, connectport, activate, run, 
 		nullptr, nullptr, deactivate, cleaninstance
 	};
 }
@@ -352,7 +352,7 @@ class LUALADSPA {
 	private:
 	void tryLoadPlugins(const fsys::path& path) {
 		for (auto const& entry : fsys::directory_iterator(path)) {
-			PluginProperties* prop = LoadPlugin(entry.path().c_str());
+			auto prop = LoadPlugin(entry.path().c_str());
 			if (prop) {
 				plugins.push_back(makeDescriptor(prop));
 			}
@@ -382,8 +382,7 @@ class LUALADSPA {
 	}
 	~LUALADSPA() {
 		for (auto &i : plugins) {
-			PluginProperties* prop = reinterpret_cast<PluginProperties*>
-				(i.ImplementationData);
+			auto prop = reinterpret_cast<PlugPropShared*>(i.ImplementationData);
 			delete prop; // yeah...
 		}
 		// no plugins available

@@ -129,8 +129,10 @@ struct PluginProperties {
 	size_t portCount;
 };
 
+using PlugPropShared = std::shared_ptr<PluginProperties>;
+
 struct PluginHandle {
-	PluginProperties *P; // master (READONLY!!!)
+	PlugPropShared P; // master (READONLY!!!)
 	int activated; // debug
 	unsigned int samplerate;
 	unsigned long samplescnt;

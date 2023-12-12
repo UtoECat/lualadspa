@@ -31,7 +31,7 @@ clean:
 	rm -f *.o lualadspa.exe liblualadspa.dll
 
 install: liblualadspa.so
-	mkdir -p ~/.ladspa
-	cp liblualadspa.dll ~/.ladspa/
-	mkdir -p ~/.lualadspa
-	cp ./plugins/* ~/.lualadspa
+	mkdir -p $(APPDATA)/LADSPA
+	cp liblualadspa.dll $(APPDATA)/LADSPA
+	mkdir -p $(LOCALAPPDATA)/lualadspa
+	cp ./plugins/* $(LOCALAPPDATA)/lualadspa

@@ -34,4 +34,4 @@ install: liblualadspa.dll
 	mkdir -p $(APPDATA)/LADSPA
 	cp liblualadspa.dll $(APPDATA)/LADSPA
 	mkdir -p $(LOCALAPPDATA)/lualadspa
-	cp ./plugins/* $(LOCALAPPDATA)/lualadspa
+	cp ./plugins/* '$(LOCALAPPDATA)/lualadspa'

@@ -12,6 +12,13 @@ Every plugin is runned as separate and independent virtual machine, btw.
 
 **WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project in some way (by writing plugins, or using it's plugins, writing documentations as examples). Also TODO list may be found in `TODO.md file`.
 
+## Tested and supported platforms and hosts
+
+- Windows : Carla + Jack 2.0
+![screenshot](dec/img2.png)
+
+- Linux : Carla, Audacity
+
 ## Luau, available libs, API and so on...
 
 `print` function was changed, to write output not to stdout, but to lualadspa log file. All semantics are same.

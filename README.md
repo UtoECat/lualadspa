@@ -10,7 +10,7 @@ Your plugins are simple lua files, that contain all info about plugin and all pl
 
 Every plugin is runned as separate and independent virtual machine, btw.
 
-**WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project : report issues, compatability and perfomance improvenets, documentation.
+**WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project : report issues, do compatability and perfomance improvenets, write and fix documentation.
 Also TODO list may be found in `TODO.md file`.
 
 ## Tested and supported platforms and hosts

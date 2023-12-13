@@ -15,7 +15,7 @@ Every plugin is runned as separate and independent virtual machine, btw.
 ## Tested and supported platforms and hosts
 
 - Windows : Carla + Jack 2.0
-![screenshot](dec/img2.png)
+![screenshot](doc/img2.png)
 
 - Linux : Carla, Audacity
 

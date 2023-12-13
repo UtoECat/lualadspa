@@ -10,7 +10,8 @@ Your plugins are simple lua files, that contain all info about plugin and all pl
 
 Every plugin is runned as separate and independent virtual machine, btw.
 
-**WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project in some way (by writing plugins, or using it's plugins, writing documentations as examples). Also TODO list may be found in `TODO.md file`.
+**WARNING! This project is still in early development, aka it may be not very usable in production!** But it would be wonderful, if you will contribute in this project : report issues, compatability and perfomance improvenets, documentation.
+Also TODO list may be found in `TODO.md file`.
 
 ## Tested and supported platforms and hosts
 
@@ -66,8 +67,31 @@ Read [this example plugin](plugins/mixer.lua) to gell ALL this information, and 
 See `./plugins/mixer.lua` for exaple of such plugin.
 
 # Building/Instalation instruction
+## Linux
+Requirements:
+- C++17 std library
+- GCC compiler
+- GNU Make
 
-todo
+Steps :
+- clone repo ``$ git clone https://github.com/UtoECat/lualadspa```
+- enter repo and run ```$ make install```
+Command above will build obly plugin inself and copy it in ~/.ladspa/
+If you want to build debug utility too, run ```$ make && make install```
+
+## Cross-Compile Linux To Windows
+Requirements above +
+- Mingw compiler
+
+Steps :
+- clone repo ``$ git clone https://github.com/UtoECat/lualadspa```
+- enter repo and run ```$ make -f makefile.win```
+
+# Windows
+
+todo.
+this is complicated topic, but i will give only one hint : Cygwin + Mingw + GNU Make.
+MSVC compiler will likely not work! 
 
 # For Contributors
 

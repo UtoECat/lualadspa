@@ -105,22 +105,35 @@ bool loadFileContent(const char* finm, std::string& buff) {
 	const size_t block_size = 256;
 	size_t blocks_num = len / block_size;
 
+	
+#define IO_ERR(...) logError("Can't read file after opening " __VA_ARGS__) 
+
 	try {
 		char tmp[block_size];
 		for (size_t bli = 0; bli < blocks_num; bli++) {
-			if (!file) throw (bli * block_size); // IO error
+			if (!file) {
+				IO_ERR("Unknown IO Error");
+				throw (bli * block_size); // IO error
+			}
 			auto cnt = file.read(tmp, block_size);
-			if (cnt < 1) throw (bli * block_size + cnt); //file shrinked?
+			if (cnt < 1) {
+				IO_ERR("Readed less than excepted : %i", (int)cnt);
+				throw (bli * block_size + cnt); //file shrinked?
+			}
 			buff.append(tmp, block_size);
 		};
 		// read rest
 		size_t n = len - (blocks_num * block_size);
 		auto cnt = file.read(tmp, 1, block_size);
-		if (cnt != n) throw n;
+		if (cnt != n) { // weird windows, always triggers
+			if (file.tell() != len) { // fix 
+				IO_ERR("Readed less than excepted (end): %i/%i, %i/%i", (int)cnt, (int)n, 
+						file.tell(), len);
+				throw n;
+			}
+		}
 		buff.append(tmp, cnt);
 	} catch (size_t i) {
-		logError("Can't read file after opening" 
-			"(pos %i/%i)", (int)i, (int)len);
 		return false;
 	}
 
